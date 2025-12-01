@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  bot:
+    build: .
+    container_name: tg-bot
+    env_file:
+      - .env
+    network_mode: host
+    restart: always
