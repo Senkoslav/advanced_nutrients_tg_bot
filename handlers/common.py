@@ -3,6 +3,7 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from keyboards.inline import main_menu_kb
 from keyboards.reply import main_reply_kb
+from filters.chat_filters import NotAdminChatFilter
 
 router = Router()
 
@@ -31,7 +32,7 @@ ABOUT_TEXT = """
 Скоро здесь появится каталог продукции, схемы питания, рекомендации и обучающие материалы.
 """
 
-@router.message(CommandStart())
+@router.message(CommandStart(), NotAdminChatFilter())
 async def cmd_start(message: types.Message, state: FSMContext):
     # Сбрасываем любые активные состояния при перезапуске
     await state.clear()
@@ -52,16 +53,16 @@ async def show_about(callback: types.CallbackQuery):
     # Опционально можно показать меню снова, но по ТЗ просто текст
 
 # Обработчики для Reply-кнопок
-@router.message(F.text == "🏠 Главное меню")
+@router.message(F.text == "🏠 Главное меню", NotAdminChatFilter())
 async def reply_main_menu(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer(WELCOME_TEXT, reply_markup=main_menu_kb())
 
-@router.message(F.text == "ℹ️ О бренде")
+@router.message(F.text == "ℹ️ О бренде", NotAdminChatFilter())
 async def reply_about(message: types.Message):
     await message.answer(ABOUT_TEXT)
 
-@router.message()
+@router.message(NotAdminChatFilter())
 async def handle_unexpected_message(message: types.Message, state: FSMContext):
     """Обработка неожиданных сообщений вне диалогов"""
     # Проверяем, есть ли активное состояние FSM

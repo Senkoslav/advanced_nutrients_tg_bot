@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 from states.user_states import SubscriptionState
 from keyboards.inline import confirm_sub_kb
 from database.core import add_subscriber, check_subscriber
+from filters.chat_filters import NotAdminChatFilter
 
 router = Router()
 
@@ -34,7 +35,7 @@ async def start_subscription(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
 
 # Обработчик для Reply-кнопки
-@router.message(F.text == "🔔 Уведомления")
+@router.message(F.text == "🔔 Уведомления", NotAdminChatFilter())
 async def reply_notify(message: types.Message, state: FSMContext):
     # Проверяем, подписан ли уже пользователь
     is_subscribed = await check_subscriber(message.from_user.id)

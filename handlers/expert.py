@@ -4,6 +4,7 @@ from states.user_states import AskExpertState
 from keyboards.inline import system_choice_kb, phase_choice_kb
 from config import ADMIN_CHAT_ID
 from database.core import save_question_mapping, get_user_by_admin_message
+from filters.chat_filters import NotAdminChatFilter
 
 router = Router()
 
@@ -21,7 +22,7 @@ async def start_expert_dialog(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
 
 # Обработчик для Reply-кнопки
-@router.message(F.text == "❓ Задать вопрос")
+@router.message(F.text == "❓ Задать вопрос", NotAdminChatFilter())
 async def reply_ask_expert(message: types.Message, state: FSMContext):
     import logging
     logging.info(f"User {message.from_user.id} started expert dialog via reply button")
@@ -157,8 +158,8 @@ async def handle_admin_reply(message: types.Message, bot: Bot):
         original_user_id = await get_user_by_admin_message(replied_message_id)
         
         if not original_user_id:
-            logging.warning(f"No user_id found for admin message {replied_message_id}")
-            await message.reply("⚠️ Не удалось найти пользователя для этого вопроса. Возможно, это не вопрос от пользователя.")
+            # Это не вопрос от пользователя - игнорируем молча
+            logging.warning(f"No user_id found for admin message {replied_message_id}. Ignoring.")
             return
         
         logging.info(f"Found original user: {original_user_id}")
@@ -183,12 +184,12 @@ async def handle_admin_reply(message: types.Message, bot: Bot):
                 parse_mode="HTML"
             )
         
-        # Подтверждение админу
+        # Подтверждение админу - ТОЛЬКО это сообщение в группе
         await message.reply("✅ Ответ отправлен пользователю!")
         logging.info(f"Reply sent to user {original_user_id}")
         
     except Exception as e:
+        # Логируем ошибку, но НЕ пишем в группу
         logging.error(f"Error handling admin reply: {type(e).__name__}: {e}")
         import traceback
         logging.error(traceback.format_exc())
-        await message.reply(f"❌ Ошибка при отправке ответа: {e}")
