@@ -18,9 +18,16 @@ def system_choice_kb():
 
 def phase_choice_kb():
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🌿 Вега", callback_data="phase_veg")],
+        [InlineKeyboardButton(text="🌿 Вегетация", callback_data="phase_veg")],
         [InlineKeyboardButton(text="🌸 Цветение", callback_data="phase_bloom")],
-        [InlineKeyboardButton(text="🌿🌸 Полный цикл", callback_data="phase_full")]
+        [InlineKeyboardButton(text="🌿🌸 Полный цикл", callback_data="phase_full")],
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data="expert_back_to_system")]
+    ])
+
+def question_input_kb():
+    """Клавиатура для этапа ввода вопроса"""
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data="expert_back_to_phase")]
     ])
 
 def confirm_sub_kb():

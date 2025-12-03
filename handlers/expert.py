@@ -1,7 +1,7 @@
 from aiogram import Router, F, types, Bot
 from aiogram.fsm.context import FSMContext
 from states.user_states import AskExpertState
-from keyboards.inline import system_choice_kb, phase_choice_kb
+from keyboards.inline import system_choice_kb, phase_choice_kb, question_input_kb
 from config import ADMIN_CHAT_ID
 from database.core import save_question_mapping, get_user_by_admin_message
 from filters.chat_filters import NotAdminChatFilter
@@ -107,7 +107,7 @@ async def cancel_on_phase_choice(message: types.Message, state: FSMContext):
 @router.callback_query(AskExpertState.choosing_phase, F.data.startswith("phase_"))
 async def request_text(callback: types.CallbackQuery, state: FSMContext):
     import logging
-    phase_map = {"phase_veg": "Вега", "phase_bloom": "Цветение", "phase_full": "Полный цикл"}
+    phase_map = {"phase_veg": "Вегетация", "phase_bloom": "Цветение", "phase_full": "Полный цикл"}
     selected_phase = phase_map.get(callback.data, "Unknown")
     
     logging.info(f"User {callback.from_user.id} selected phase: {selected_phase}")
@@ -150,7 +150,7 @@ async def request_text(callback: types.CallbackQuery, state: FSMContext):
     else:
         msg = "❓ Опишите ваш вопрос максимально подробно. Фото можно приложить."
     
-    await callback.message.answer(msg, parse_mode="HTML")
+    await callback.message.answer(msg, parse_mode="HTML", reply_markup=question_input_kb())
     await state.set_state(AskExpertState.writing_question)
     logging.info(f"State set to writing_question for user {callback.from_user.id}. Waiting for text...")
     await callback.answer()
@@ -249,6 +249,34 @@ async def cancel_question_by_menu(message: types.Message, state: FSMContext):
         await message.answer(WHERE_BUY_TEXT, parse_mode="HTML", disable_web_page_preview=True)
     elif message.text == "ℹ️ О бренде":
         await message.answer(ABOUT_TEXT)
+
+# Обработчики навигации (Назад)
+
+@router.callback_query(F.data == "expert_back_to_system")
+async def expert_back_to_system(callback: types.CallbackQuery, state: FSMContext):
+    """Возврат к выбору системы"""
+    import logging
+    
+    logging.info(f"User {callback.from_user.id} went back to system choice")
+    await callback.message.edit_text(
+        "Выберите вашу систему выращивания:",
+        reply_markup=system_choice_kb()
+    )
+    await state.set_state(AskExpertState.choosing_system)
+    await callback.answer()
+
+@router.callback_query(F.data == "expert_back_to_phase")
+async def expert_back_to_phase(callback: types.CallbackQuery, state: FSMContext):
+    """Возврат к выбору фазы"""
+    import logging
+    
+    logging.info(f"User {callback.from_user.id} went back to phase choice")
+    await callback.message.edit_text(
+        "Выберите фазу роста:",
+        reply_markup=phase_choice_kb()
+    )
+    await state.set_state(AskExpertState.choosing_phase)
+    await callback.answer()
 
 @router.message(F.chat.id == ADMIN_CHAT_ID, F.reply_to_message)
 async def handle_admin_reply(message: types.Message, bot: Bot):
