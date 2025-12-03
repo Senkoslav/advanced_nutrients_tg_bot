@@ -7,10 +7,8 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = 'users'
 
-    # Внутренний ID записи в базе (1, 2, 3...)
     id = Column(Integer, primary_key=True, autoincrement=True)
     
-    # Реальный Telegram ID (обязательно BigInteger)
     user_id = Column(BigInteger, unique=True, index=True)
     
     username = Column(String, nullable=True)
@@ -22,6 +20,6 @@ class QuestionMapping(Base):
     __tablename__ = 'question_mappings'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    admin_message_id = Column(BigInteger, unique=True, index=True)  # ID сообщения в админ-чате
-    user_id = Column(BigInteger)  # ID пользователя, задавшего вопрос
+    admin_message_id = Column(BigInteger, unique=True, index=True)  
+    user_id = Column(BigInteger)  
     created_at = Column(DateTime, default=datetime.utcnow)

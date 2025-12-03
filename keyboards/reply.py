@@ -6,6 +6,10 @@ def main_reply_kb():
         keyboard=[
             [
                 KeyboardButton(text="❓ Задать вопрос"),
+                KeyboardButton(text="📍 Где купить")
+            ],
+            [
+                KeyboardButton(text="💼 B2B / Оптовые закупки"),
                 KeyboardButton(text="🔔 Уведомления")
             ],
             [

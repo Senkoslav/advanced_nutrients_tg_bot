@@ -7,4 +7,8 @@ class AskExpertState(StatesGroup):
 
 class SubscriptionState(StatesGroup):
     confirming = State()
+
+class B2BState(StatesGroup):
+    waiting_company = State()
+    waiting_email = State()
     

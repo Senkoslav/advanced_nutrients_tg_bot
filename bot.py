@@ -3,31 +3,27 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from config import BOT_TOKEN
-from handlers import common, expert, subscription
+from handlers import common, expert, subscription, where_buy, b2b
 from database.core import init_db
 
-# Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
 async def main():
-    # Инициализация БД
     await init_db()
     
-    # Создание объектов бота и диспетчера с хранилищем состояний
     bot = Bot(token=BOT_TOKEN)
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
 
-    # Регистрация роутеров (обработчиков)
-    # ВАЖНО: Специфичные обработчики (с FSM) должны быть ПЕРВЫМИ
     dp.include_router(expert.router)
+    dp.include_router(b2b.router)
     dp.include_router(subscription.router)
-    dp.include_router(common.router)  # Общие обработчики в конце
+    dp.include_router(where_buy.router)
+    dp.include_router(common.router)  
 
-    # Удаление вебхука и запуск поллинга
     await bot.delete_webhook(drop_pending_updates=True)
     try:
         logging.info("Bot started successfully!")

@@ -3,6 +3,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 def main_menu_kb():
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="❓ Задать вопрос эксперту", callback_data="nav_ask_expert")],
+        [InlineKeyboardButton(text="📍 Где купить", callback_data="nav_where_buy")],
+        [InlineKeyboardButton(text="💼 B2B / Оптовые закупки", callback_data="nav_b2b")],
         [InlineKeyboardButton(text="🔔 Уведомить о запуске", callback_data="nav_notify")],
         [InlineKeyboardButton(text="ℹ️ О бренде Advanced Nutrients", callback_data="nav_about")]
     ])

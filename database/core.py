@@ -4,8 +4,6 @@ from config import DATABASE_URL
 from database.models import Base, User, QuestionMapping
 from sqlalchemy import select
 
-# Создаем движок
-# echo=True полезно при разработке, чтобы видеть SQL запросы в консоли
 engine = create_async_engine(DATABASE_URL, echo=True)
 
 async_session = sessionmaker(
@@ -14,7 +12,6 @@ async_session = sessionmaker(
 
 async def init_db():
     async with engine.begin() as conn:
-        # Создаст таблицы, если их нет
         await conn.run_sync(Base.metadata.create_all)
 
 async def check_subscriber(user_id: int) -> bool:
@@ -57,16 +54,13 @@ async def get_user_by_admin_message(admin_message_id: int):
 
 async def add_subscriber(user_id: int, username: str):
     async with async_session() as session:
-        # В Postgres лучше использовать явный select и логику обновления
         result = await session.execute(select(User).where(User.user_id == user_id))
         user = result.scalars().first()
         
         if user:
-            # Если пользователь уже был в базе, просто обновляем статус и ник
             user.early_access = True
             user.username = username
         else:
-            # Если новый - создаем
             new_user = User(user_id=user_id, username=username, early_access=True)
             session.add(new_user)
         
